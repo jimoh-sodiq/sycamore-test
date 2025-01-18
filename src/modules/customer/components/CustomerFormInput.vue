@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { defineModel } from 'vue'
 
-const model = defineModel<sring| number>()
+const model = defineModel<string| number>()
 
 withDefaults(defineProps<{
   type?: string

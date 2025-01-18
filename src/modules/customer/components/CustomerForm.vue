@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue"
+import { ref, reactive, onMounted } from "vue"
 import CustomerFormInput from '@/modules/customer/components/CustomerFormInput.vue'
 import type { CustomerInfo } from '@/modules/customer/types.ts'
 import { statesInNigeria } from '@/modules/customer/utils.ts'
@@ -8,6 +8,8 @@ import { useCustomerStore } from "@/modules/customer/store.ts"
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
+
+
 
 const props = withDefaults(defineProps<{
   readonly?: boolean,
@@ -23,6 +25,20 @@ const disabled = ref(false)
 function handleCancel(){
   emit('close')
 }
+
+const editorTools = ref([
+  "bold",
+  "italic",
+  "underline",
+  "link",
+  "strike",
+  "align",
+  "image",
+  { align: "center" },
+  { align: "right" },
+  { list: "bullet" },
+]);
+const quillEditorRef = ref()
 
 const customerFormData = reactive<Omit<CustomerInfo, 'id'>>({
   firstName: props.customerInfo?.firstName ?? "",
@@ -71,9 +87,18 @@ function handleDeleteCustomer(){
         <label class="flex w-fit  gap-x-4 cursor-pointer"><span class="text-sm text-gray-600 font-medium">Active:</span> <input v-model="customerFormData.active" :readonly="readonly" :disabled="readonly" type="checkbox" class="accent-red-600 w-5 h-5" /></label>
       </div>
     </div>
-    <div class="w-full">
-      <textarea v-model="customerFormData.details" class="w-full">CustomerDetails</textarea>
-    </div>
+<!--    <div ref="quillHolderRef" class="w-full">-->
+<!--      <textarea v-model="customerFormData.details" class="w-full">CustomerDetails</textarea>-->
+<!--    </div>-->
+    <QuillEditor
+      ref="quillEditorRef"
+      class="text-black border border-solid max-h-[282px] bg-white"
+      :disabled="disabled"
+      v-model:content="customerFormData.details"
+      style="height: 170px"
+      :toolbar="editorTools"
+      contentType="html"
+    />
     <div class="grid gap-5" :class="readonly ? 'grid-cols-1' : 'grid-cols-2'">
       <button :disabled="disabled" v-if="!readonly" type="submit" class="bg-green-600 text-white w-full font-semibold text-sm rounded p-2.5 hover:bg-green-500 transition-all">{{ isEditing ? 'Edit Customer' : 'Create Customer' }}</button>
       <button :disabled="disabled" v-if="readonly" type="submit" class="bg-green-600 text-white w-full font-semibold text-sm rounded p-2.5 hover:bg-green-500 transition-all">{{ isEditing ? 'Edit Customer' : 'Create Customer' }}</button>
